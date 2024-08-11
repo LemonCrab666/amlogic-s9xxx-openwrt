@@ -170,7 +170,7 @@ on:
       openwrt_kernel:
         description: "Select kernel version"
         required: false
-        default: "5.15.164"
+        default: "6.6.y"
         type: choice
         options:
           - 5.4.y
