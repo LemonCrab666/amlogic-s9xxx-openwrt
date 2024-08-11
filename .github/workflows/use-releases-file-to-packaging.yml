@@ -175,7 +175,7 @@ on:
         options:
           - 5.4.y
           - 5.10.y
-          - 5.15.162
+          - 5.15.y
           - 6.1.y
           - 6.6.y
           - 6.1.y_6.6.y
@@ -216,9 +216,9 @@ on:
         default: "ophub"
         type: choice
         options:
+          - LemonCrab
           - ophub
           - angel
-          - LemonCrab
 
 env:
   TZ: America/New_York
