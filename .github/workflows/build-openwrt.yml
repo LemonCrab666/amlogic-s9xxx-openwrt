@@ -15,10 +15,10 @@ on:
         default: "openwrt-main"
         type: choice
         options:
+          - immortalwrt-stable
           - openwrt-main
           - lede-master
           - immortalwrt-master
-          - immortalwrt-stable
       openwrt_board:
         description: "Select device board"
         required: false
@@ -216,10 +216,10 @@ on:
         default: "ophub"
         type: choice
         options:
+          - LemonCrab
           - ophub
           - angel
           - yourname
-          - LemonCrab
 
 env:
   FEEDS_CONF: config/${{ inputs.source_branch }}/feeds.conf.default
