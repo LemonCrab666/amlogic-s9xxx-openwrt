@@ -286,50 +286,39 @@ jobs:
               REPO_URL="https://github.com/coolsnowwolf/lede"
               REPO_BRANCH="master"
               TAGS_NAME="lede"
-          elif [[ "${{ inputs.source_branch }}" == *"immortalwrt-master"* ]]; then
+          elif [[ "${{ inputs.source_branch }}" == *"immortalwrt"* ]]; then
               REPO_URL="https://github.com/immortalwrt/immortalwrt"
               REPO_BRANCH="master"
               TAGS_NAME="immortalwrt"
-          elif [[ "${{ inputs.source_branch }}" == *"immortalwrt-stable"* ]]; then
-              REPO_URL="https://github.com/immortalwrt/immortalwrt"
-              REPO_BRANCH="v23.05.3"
-              TAGS_NAME="immortalwrt-stable"
           else
               echo "Unknown source code repository."
               exit 1
           fi
 
-          # Check if the selected kernel is 5.15; skip download if it is
-          if [[ "${{ inputs.openwrt_kernel }}" == "5.15.y" ]]; then
-              echo "Kernel is set to 5.15.y, skipping the download of the latest 6.6 kernel."
-              use_kernel="5.15.y"
-          else
-              # Proceed with downloading the latest version
-              armvirt_tarfile_path="openwrt/output"
-              [[ -d "${armvirt_tarfile_path}" ]] || mkdir -p ${armvirt_tarfile_path}
-              ln -sf /builder/openwrt ${GITHUB_WORKSPACE}/openwrt
-              ln -sf /builder/openwrt /home/runner/work/_actions/ophub/amlogic-s9xxx-openwrt/main/openwrt
+          armvirt_tarfile_path="openwrt/output"
+          [[ -d "${armvirt_tarfile_path}" ]] || mkdir -p ${armvirt_tarfile_path}
+          ln -sf /builder/openwrt ${GITHUB_WORKSPACE}/openwrt
+          ln -sf /builder/openwrt /home/runner/work/_actions/ophub/amlogic-s9xxx-openwrt/main/openwrt
 
-              latest_version="$(curl -s \
-                                  -H "Accept: application/vnd.github+json" \
-                                  -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                                  https://api.github.com/repos/${GITHUB_REPOSITORY}/releases?per_page=100 |
-                                  jq '.[]' |
-                                  jq -s --arg RTK "OpenWrt_${{ inputs.source_branch }}_" '.[] | select(.tag_name | contains($RTK))' |
-                                  jq -s '.[].assets[] | {data:.updated_at, url:.browser_download_url}' |
-                                  jq -s --arg BOARD "-rootfs.tar.gz" '.[] | select(.url | endswith($BOARD))' |
-                                  jq -s 'sort_by(.data)|reverse[]' |
-                                  jq -s '.[0]' -c
-                              )"
+          latest_version="$(curl -s \
+                              -H "Accept: application/vnd.github+json" \
+                              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                              https://api.github.com/repos/${GITHUB_REPOSITORY}/releases?per_page=100 |
+                              jq '.[]' |
+                              jq -s --arg RTK "OpenWrt_${{ inputs.source_branch }}_" '.[] | select(.tag_name | contains($RTK))' |
+                              jq -s '.[].assets[] | {data:.updated_at, url:.browser_download_url}' |
+                              jq -s --arg BOARD "-rootfs.tar.gz" '.[] | select(.url | endswith($BOARD))' |
+                              jq -s 'sort_by(.data)|reverse[]' |
+                              jq -s '.[0]' -c
+                          )"
 
-              [[ "${latest_version}" == "null" ]] && echo "Invalid OpenWrt rootfs download address." && exit 1
-              latest_updated_at="$(echo ${latest_version} | jq -r '.data')"
-              latest_url="$(echo ${latest_version} | jq -r '.url')"
+          [[ "${latest_version}" == "null" ]] && echo "Invalid OpenWrt rootfs download address." && exit 1
+          latest_updated_at="$(echo ${latest_version} | jq -r '.data')"
+          latest_url="$(echo ${latest_version} | jq -r '.url')"
 
-              openwrt_filename="${latest_url##*/}"
-              curl -fsSL "${latest_url}" -o "${armvirt_tarfile_path}/${openwrt_filename}"
-              [[ "${?}" -ne "0" ]] && echo "Invalid OpenWrt rootfs download address." && exit 1
-          fi
+          openwrt_filename="${latest_url##*/}"
+          curl -fsSL "${latest_url}" -o "${armvirt_tarfile_path}/${openwrt_filename}"
+          [[ "${?}" -ne "0" ]] && echo "Invalid OpenWrt rootfs download address." && exit 1
 
           echo "build_tag=OpenWrt_${{ inputs.source_branch }}_${{ inputs.openwrt_storage }}_$(date +"%Y.%m")" >> ${GITHUB_OUTPUT}
           df -hT ${PWD}
