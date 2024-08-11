@@ -15,10 +15,10 @@ on:
         default: "official"
         type: choice
         options:
+          - immortalwrt-stable
           - official
           - lede
           - immortalwrt-master
-          - immortalwrt-stable
       openwrt_board:
         description: "Select device board"
         required: false
