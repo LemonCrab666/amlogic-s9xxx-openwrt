@@ -298,7 +298,7 @@ jobs:
               TAGS_NAME="immortalwrt"
           elif [[ "${{ inputs.source_branch }}" == *"immortalwrt-stable"* ]]; then
               REPO_URL="https://github.com/immortalwrt/immortalwrt"
-              REPO_BRANCH="v23.05.3"
+              REPO_BRANCH="v23.05.4"
               TAGS_NAME="immortalwrt-stable"
           else
               echo "Unknown source code repository."
